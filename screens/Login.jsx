@@ -1,27 +1,57 @@
-import { Button, Text, View, TouchableNativeFeedback, TouchableHighlight, TouchableOpacity, Platform, Image } from "react-native";
+import { Button, Text, View, TouchableNativeFeedback, TouchableHighlight, TouchableOpacity, Platform, Image, PermissionsAndroid } from "react-native";
 import GoogleIcon from "../public/google_logo.png";
 import React, { useState, useEffect } from 'react';
 import { requestNotifications, request, PERMISSIONS } from 'react-native-permissions';
-import Wazo from '@wazo/sdk/lib/simple';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import VoipPushNotification from "react-native-voip-push-notification";
-import getApiClient from "@wazo/sdk/lib/service/getApiClient";
-
+import { useNavigation } from "@react-navigation/native"
+import Wazo from "@wazo/sdk/lib/simple";
 let PlatformSpecificComponent = Platform.OS === 'android' ? TouchableNativeFeedback : Platform.OS === 'ios' ? TouchableHighlight : TouchableOpacity
 
 export default function Login({ setAuth }) {
 
+  const navigation = useNavigation();
+  useEffect(() => {
+    authenticate();
+  }, []);
+
+  const init = async () => {
+    try {
+      // await requestNotifications(['sound', 'alert']);
+      // request(PERMISSIONS.ANDROID.READ_PHONE_STATE).then((data) => console.log(data))
+      // request(PERMISSIONS.ANDROID.CALL_PHONE).then((data) => console.log(data))
+      // request(PERMISSIONS.ANDROID.RECORD_AUDIO).then((data) => console.log(data))
+      // request(PERMISSIONS.ANDROID.CAMERA).then((data) => console.log(data))
+      // request(PERMISSIONS.ANDROID.CAMERA).then((data) => console.log(data))
+      authenticate();
+    } catch (error) {
+      console.log(error.message);
+    }
+  }
+
+  const authenticate = async () => {
+    const host = '1'
+    try {
+      await Wazo.Auth.init();
+      await Wazo.Auth.setHost('172.17.1.217:5083');
+      console.log('hello:')
+      const session = await Wazo.Auth.logIn('7001', '700', 'asdfgh', 'qwerthb');
+      console.log('session: ',session);
+      console.log(a);
+    } catch (error) {
+      
+    }
+  }
+
   const handleLogin = async () => {
     try {
-      Wazo.Auth.init();
-      Wazo.Auth.setHost('http://172.16.123.148:5083');
-      const session = await Wazo.Auth.logIn('test1', '12345');
-      console.log(session);
-      setAuth('auth')
+      setAuth('asdfgh')
+      // navigation.navigate()
     } catch (error) {
       console.log(error);
     }
   }
+
 
   return (
     <View style={{ flex: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
