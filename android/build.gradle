@@ -9,12 +9,30 @@ buildscript {
     }
     repositories {
         google()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+        maven {
+            name "linphone.org maven repository"
+            url "https://linphone.org/maven_repository"
+            content {
+                includeGroup "org.linphone"
+            }
+        }
+        maven {
+            url "https://www.jitpack.io"
+        }
         mavenCentral()
     }
     dependencies {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+
+        classpath("com.google.gms:google-services:4.3.15")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21")
+        classpath("com.google.firebase:firebase-crashlytics-gradle:2.9.6")
+        classpath("com.google.gms:google-services:4.3.4")
     }
 }
 

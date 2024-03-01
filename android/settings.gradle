@@ -1,3 +1,25 @@
+
+
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.PREFER_PROJECT)
+    repositories {
+        google()
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenCentral()
+
+        maven {
+            name "linphone.org maven repository"
+            url "https://linphone.org/maven_repository"
+            content {
+                includeGroup "org.linphone"
+            }
+        }
+        maven {
+            url "https://www.jitpack.io"
+        }
+    }
+}
+
 rootProject.name = 'voip_rn'
 apply from: file("../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesSettingsGradle(settings)
 include ':app'
