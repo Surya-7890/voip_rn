@@ -10,7 +10,11 @@ export default function Login({ setAuth }) {
   const password = useRef(null);
   
   const login = () => {
-    Test.test(username.current.value,password.current.value,"192.168.57.227", (name) => console.log(name));
+    try{
+      Test.test(username.current.value,password.current.value,"192.168.57.227", (name) => console.log(name));
+    }catch(err){
+      console.log(err);
+    }
   }
 
 

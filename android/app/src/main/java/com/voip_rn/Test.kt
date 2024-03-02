@@ -8,6 +8,8 @@ import com.facebook.react.bridge.ReactMethod
 import com.facebook.react.bridge.Callback
 import org.linphone.core.*
 import android.Manifest
+import org.linphone.core.tools.Log
+
 
 
 
@@ -15,27 +17,38 @@ class Test(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(r
     override fun getName() = "Test"
 
     private var core: Core? = null
+    private lateinit var callback: Callback
+    var isCallbackInvoked = false
+
+    fun setCb(cb :Callback){
+        this.callback=cb;
+    }
+
+    val coreListener = object : CoreListenerStub() {
+        override fun onAccountRegistrationStateChanged(core: Core, account: Account, state: RegistrationState, message: String) {
+
+            if (state == RegistrationState.Failed ) {                            
+                if (!isCallbackInvoked) callback.invoke(state.toString())
+                isCallbackInvoked=true
+            } else if (state == RegistrationState.Ok) {
+                if (!isCallbackInvoked) callback.invoke(state.toString())
+                isCallbackInvoked=true                    
+            }
+        }
+    }
+
 
     @ReactMethod
     fun test(username: String, password: String, domain: String, cb: Callback) {  
 
         try{
-
+            isCallbackInvoked=false
             val mainActivity = currentActivity as MainActivity?
             core = mainActivity?.getCoreInstance()
+            setCb(cb)
 
             core?.let { safeCore ->
 
-                val coreListener = object : CoreListenerStub() {
-                    override fun onAccountRegistrationStateChanged(core: Core, account: Account, state: RegistrationState, message: String) {
-
-                        if (state == RegistrationState.Failed ) {                            
-                            cb.invoke(state.toString())
-                        } else if (state == RegistrationState.Ok) {
-                            cb.invoke(state.toString())                            
-                        }
-                    }
-                }
                 val transportType = TransportType.Udp
                 val authInfo = Factory.instance().createAuthInfo(username, null, password, null, null, domain, null)
                 val params = safeCore.createAccountParams()
@@ -55,14 +68,13 @@ class Test(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(r
                 safeCore.start()         
                 
             } ?: run {
-                cb.invoke("err")
+                if (!isCallbackInvoked) callback.invoke("err")
+                isCallbackInvoked=true
             }            
            
         }catch(e:Exception){
-            cb.invoke(e)
-        }      
-
-        
-        
+            if (!isCallbackInvoked) callback.invoke("err")
+            isCallbackInvoked=true
+        }           
     }
 }
