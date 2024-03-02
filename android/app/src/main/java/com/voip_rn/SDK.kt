@@ -13,8 +13,8 @@ import org.linphone.core.tools.Log
 
 
 
-class Test(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
-    override fun getName() = "Test"
+class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext) {
+    override fun getName() = "SDK"
 
     private var core: Core? = null
     private lateinit var callback: Callback
@@ -39,7 +39,7 @@ class Test(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(r
 
 
     @ReactMethod
-    fun test(username: String, password: String, domain: String, cb: Callback) {  
+    fun login(username: String, password: String, domain: String, cb: Callback) {  
 
         try{
             isCallbackInvoked=false
@@ -75,6 +75,7 @@ class Test(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(r
         }catch(e:Exception){
             if (!isCallbackInvoked) callback.invoke("err")
             isCallbackInvoked=true
-        }           
+        }   
+        
     }
 }

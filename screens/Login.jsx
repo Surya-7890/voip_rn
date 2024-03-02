@@ -4,14 +4,15 @@ import { useEffect, useRef, useState } from "react";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 let PlatformSpecificComponent = Platform.OS === 'android' ? TouchableNativeFeedback : Platform.OS === 'ios' ? TouchableHighlight : TouchableOpacity
-const  { Test } = NativeModules;
+const  { SDK } = NativeModules;
 export default function Login({ setAuth }) {
   const username = useRef(null);
   const password = useRef(null);
   
   const login = () => {
     try{
-      Test.test(username.current.value,password.current.value,"192.168.57.227", (name) => console.log(name));
+      SDK.login(username.current.value,password.current.value,"192.168.57.227", (name) => console.log(name));
+
     }catch(err){
       console.log(err);
     }
