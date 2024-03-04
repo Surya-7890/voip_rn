@@ -1,17 +1,24 @@
 import { Button, Text, View, TouchableNativeFeedback, TouchableHighlight, TouchableOpacity, Platform, Image, NativeModules, TextInput } from "react-native";
 import GoogleIcon from "../public/google_logo.png";
 import { useEffect, useRef, useState } from "react";
+import { PermissionsAndroid } from 'react-native';
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 
 let PlatformSpecificComponent = Platform.OS === 'android' ? TouchableNativeFeedback : Platform.OS === 'ios' ? TouchableHighlight : TouchableOpacity
 const  { SDK } = NativeModules;
+
 export default function Login({ setAuth }) {
+  
   const username = useRef(null);
   const password = useRef(null);
+
+  useEffect(()=>{
+    // SDK.accountStatus((status)=>console.log(status))
+  },[])
   
   const login = () => {
-    try{
-      SDK.login(username.current.value,password.current.value,"192.168.57.227", (name) => console.log(name));
+    try{      
+      SDK.login(username.current.value,password.current.value,"192.168.107.227", (name) => console.log(name));
 
     }catch(err){
       console.log(err);

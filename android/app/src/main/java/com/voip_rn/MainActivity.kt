@@ -16,6 +16,7 @@ class MainActivity : ReactActivity() {
   override fun onCreate(savedInstanceState: Bundle?) {    
     super.onCreate(savedInstanceState)
     val factory = Factory.instance()
+    factory.setDebugMode(true,"hello Linephone")
     core=factory.createCore(null,null,this)    
   }
 
