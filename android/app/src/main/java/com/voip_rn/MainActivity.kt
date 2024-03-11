@@ -7,6 +7,8 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 import org.linphone.core.*
 import android.os.Bundle
 import com.facebook.react.bridge.ReactContext
+import io.wazo.callkeep.RNCallKeepModule;
+
 
 
 
@@ -36,4 +38,17 @@ class MainActivity : ReactActivity() {
    */
   override fun createReactActivityDelegate(): ReactActivityDelegate =
       DefaultReactActivityDelegate(this, mainComponentName, fabricEnabled)
+
+
+  override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+
+    if (grantResults.isNotEmpty()) {
+        when (requestCode) {
+            RNCallKeepModule.REQUEST_READ_PHONE_STATE -> {
+                RNCallKeepModule.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            }
+        }
+    }
+  }
 }

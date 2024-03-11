@@ -13,20 +13,26 @@ import android.widget.Toast
 import org.linphone.core.tools.Log
 
 
+import com.facebook.react.bridge.WritableMap
+import com.facebook.react.bridge.Arguments
+import com.facebook.react.modules.core.DeviceEventManagerModule
+
+
+
 
 
 class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext){
     override fun getName() = "SDK"
 
     private var core: Core? = null
+
     private lateinit var callback: Callback
     var isCallbackInvoked = false
 
+    var RC=reactContext;
 
-    val waitForServerAnswer = MutableLiveData<Boolean>()
 
-
-    override fun initialize() {
+    fun init() {
         super.initialize()
         val mainActivity = currentActivity as MainActivity?
         core = mainActivity?.getCoreInstance()
@@ -43,14 +49,14 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
     val coreListener = object : CoreListenerStub() {
         override fun onAccountRegistrationStateChanged(core: Core, account: Account, state: RegistrationState, message: String) {
 
-            if (state == RegistrationState.Failed ) {                            
-                if (!isCallbackInvoked) callback.invoke(state.toString())
-                isCallbackInvoked=true
-            } else if (state == RegistrationState.Ok) {
-                Log.i("[Assistant] [Generic Login] Registration state is")
-                if (!isCallbackInvoked) callback.invoke(state.toString())
-                isCallbackInvoked=true                    
-            }
+            if (state == RegistrationState.Failed || state == RegistrationState.Ok) {                   
+                
+                val params = Arguments.createMap().apply {
+                    putString("status", state.toString())
+                }
+                sendEvent(RC, "login", params)
+            } 
+
         }
 
         override fun onCallStateChanged(
@@ -61,11 +67,19 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
         ){
             when(state){
                 Call.State.IncomingReceived -> {
-                    Log.i("[Assistant] [Generic Login] Registration state is")
+                    // core.currentCall?.accept()
+                    val params = Arguments.createMap().apply {
+                        putString("incoming", message.toString())
+                    }
+                    sendEvent(RC, "call", params)
                 }
 
                 Call.State.Connected -> {
 
+                    val params = Arguments.createMap().apply {
+                        putString("connect", call.remoteAddress.asStringUriOnly())
+                    }
+                    sendEvent(RC, "call", params)
                 }
 
                 Call.State.Released -> {
@@ -78,12 +92,49 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
         }
     }
 
+    private var listenerCount = 0
+
 
     @ReactMethod
-    fun login(username: String, password: String, domain: String, cb: Callback) {  
+    fun addListener(eventName: String) {
+        if (listenerCount == 0) {
+            // Set up any upstream listeners or background tasks as necessary
+        }
+        
+        // val eventEmitter = RC.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+        // eventEmitter.addListener(eventName) { event ->
+        //     // Handle the event here
+        //     val eventData = event as WritableMap
+        //     val incomingCall = eventData.getString("incoming")
+        //     // Do something with the incoming call data
+        // }
+
+        listenerCount += 1
+    }
+
+    @ReactMethod
+    fun removeListeners(count: Int) {
+        listenerCount -= count
+        if (listenerCount == 0) {
+            // Remove upstream listeners, stop unnecessary background tasks
+        }
+    }
+
+
+
+    private fun sendEvent(reactContext: ReactContext, eventName: String, params: WritableMap?) {
+        reactContext
+          .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter::class.java)
+          .emit(eventName, params)
+    }
+
+
+    @ReactMethod
+    fun login(username: String, password: String, domain: String, cb: Callback) {
 
         try{
-            isCallbackInvoked=false         
+            isCallbackInvoked=false      
+         
             
             setCb(cb)
             Log.i("[Assistant] [Generic Login] Registration state is")
@@ -120,16 +171,13 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
             }            
            
         }catch(e:Exception){
-            if (!isCallbackInvoked) callback.invoke("err ${e}")
+            if (!isCallbackInvoked) callback.invoke("err ${e.toString()}")
             isCallbackInvoked=true
         }   
         
     }
     
-    fun createAccountAndAuthInfo() {
-        waitForServerAnswer.value = true
-        // accountCreator.username = "7001"
-    }
+ 
    
 
     @ReactMethod

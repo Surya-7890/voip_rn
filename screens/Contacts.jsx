@@ -53,7 +53,7 @@ export default function Contacts() {
 
   return (
     <View style={{ height: '100%' }}>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      {/* <TouchableWithoutFeedback onPress={Keyboard.dismiss}> */}
         <View style={{ flex: 1 }}>
 
           <View style={{ height: '20%', width: '100%', justifyContent: 'center', alignItems: 'center', marginBottom: 5 }}>
@@ -113,7 +113,7 @@ export default function Contacts() {
               )}
             />
         </View>
-      </TouchableWithoutFeedback>
+      {/* </TouchableWithoutFeedback> */}
     </View>
   )
 }

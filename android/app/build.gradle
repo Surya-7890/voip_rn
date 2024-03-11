@@ -135,6 +135,8 @@ dependencies {
     implementation("com.google.firebase:firebase-messaging:19.0.1")
     implementation("androidx.media:media:1.2.0")
 
+    
+
 
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")

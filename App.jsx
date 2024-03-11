@@ -10,7 +10,7 @@ export const ApplicationContext = createContext({});
 
 export default function App() {
   const [auth, setAuth] = useState(null);
-  const [themeColor, setThemeColor] = useState('dodgerblue');
+  const [themeColor, setThemeColor] = useState('blue');
   const [mode, setMode] = useState('light')
   return (
     <NavigationContainer>
