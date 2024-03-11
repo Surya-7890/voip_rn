@@ -36,15 +36,9 @@ export default function Login({setAuth}) {
     let eventListener = eventEmitter.addListener('login', event => {
       console.log(event.status); // "someValue"
       if (event.status === 'Ok') {
-        // setAuth('auth');
+        setAuth('auth');
       }
     });
-
-    let eventListener2 = eventEmitter.addListener('call', event => {
-      console.log("incoming call : ",event.incoming); // "someValue"
-      RNCallKeep.displayIncomingCall("1234", "123", "123", 'number', true);
-    });
-
 
     requestPhonePermission();
 
@@ -57,7 +51,7 @@ export default function Login({setAuth}) {
   async function requestPhonePermission() {
     console.log('requesting');
     try {
-      console.log(await RNCallKeep.setup({
+      await RNCallKeep.setup({
         ios: {
           appName: 'voip_rn',
         },
@@ -68,76 +62,24 @@ export default function Login({setAuth}) {
           cancelButton: 'Cancel',
           okButton: 'ok',
         },
-      }));
-      RNCallKeep.setAvailable(true);
+      });
 
       const options = {
         alertTitle: 'Default not set',
-        alertDescription: 'Please set the default phone account'
+        alertDescription: 'Please set the default phone account',
       };
-      console.log("Account status ",RNCallKeep.registerPhoneAccount(options) )
-      console.log("Account: ",await RNCallKeep.checkPhoneAccountEnabled());
+      console.log('Account status ', RNCallKeep.registerPhoneAccount(options));
     } catch (err) {
       console.error('initializeCallKeep error:', err.message);
     }
-
-    RNCallKeep.addEventListener('didReceiveStartCallAction', onNativeCall);
-    RNCallKeep.addEventListener('answerCall', onAnswerCallAction);
-    RNCallKeep.addEventListener('endCall', onEndCallAction);
-    RNCallKeep.addEventListener(
-      'didDisplayIncomingCall',
-      onIncomingCallDisplayed,
-    );
-    RNCallKeep.addEventListener('didPerformSetMutedCallAction', onToggleMute);
-    RNCallKeep.addEventListener('didPerformDTMFAction', onDTMF);
+    global.RNCallKeep = RNCallKeep;
   }
 
-  const onNativeCall = ({handle}) => {
-    // _onOutGoingCall on android is also called when making a call from the app
-    // so we have to check in order to not making 2 calls
-    // if (inCall) {
-    //   return;
-    // }
-    // // Called when performing call from native Contact app
-    // call(handle);
-  };
-
-  const onAnswerCallAction = ({callUUID}) => {
-    // called when the user answer the incoming call
-    // answer(true);
-    // RNCallKeep.setCurrentCallActive(callUUID);
-    // // On Android display the app when answering a video call
-    // if (!isIOS && currentSession.cameraEnabled) {
-    //   RNCallKeep.backToForeground();
-    // }
-  };
-
-  const onEndCallAction = ({callUUID}) => {
-    hangup();
-  };
-
-  const onIncomingCallDisplayed = ({callUUID, handle, fromPushKit}) => {
-    // Incoming call displayed (used for pushkit on iOS)
-  };
-
-  const onToggleMute = muted => {
-    // Called when the system or the user mutes a call
-    // Wazo.Phone[muted ? 'mute' : 'unmute'](currentSession);
-  };
-
-  const onDTMF = action => {
-    console.log('onDTMF', action);
-  };
-
-  const login = async() => {
-    // setAuth('1234')
-    // console.log("displaying");
-    // RNCallKeep.setCurrentCallActive();
-    //  RNCallKeep.startCall("555", "123", "888", 'number',hasVideo=false)
+  const login = async () => {
     SDK.login(
       username.current.value,
       password.current.value,
-      '192.168.177.227',
+      '172.17.14.126',
       name => {
         console.log(name);
       },
