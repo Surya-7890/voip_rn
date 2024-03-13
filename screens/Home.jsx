@@ -10,10 +10,10 @@ import {
   NativeModules,
   NativeEventEmitter,
 } from 'react-native';
+const {SDK} = NativeModules;
+
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {ApplicationContext} from '../App';
-
-// import {} from "react-native-webrtc";
 
 import RNCallKeep from 'react-native-callkeep';
 
@@ -34,17 +34,50 @@ export default function Home() {
   useEffect(() => {
     const eventEmitter = new NativeEventEmitter(NativeModules.SDK);
 
-    let eventListener = eventEmitter.addListener('call', event => {
-      RNCallKeep.displayIncomingCall('1234', '123', '123', 'number', true);
-      // console.log("incoming ",event.incoming);
+    RNCallKeep.addEventListener('answerCall', this.onAnswerCallAction);
+    RNCallKeep.addEventListener('endCall', this.onEndCallAction);
+
+    let eventListener = eventEmitter.addListener('incoming', event => {
+      RNCallKeep.displayIncomingCall(
+        '1234',
+        event.id.toString(),
+        event.id.toString(),
+        'number',
+        true,
+      );
+      console.log('incoming ', event.id);
+    });
+
+    let eventListener2 = eventEmitter.addListener('call_status', event => {
+      if (event.reject === 'rejected') {
+        console.log('rejected', event.id);
+        RNCallKeep.endCall('1234');
+      }
     });
     RNCallKeep.setAvailable(true);
 
     console.log('request');
     return () => {
       eventListener.remove();
+      eventListener2.remove();
     };
   }, []);
+
+  onAnswerCallAction = data => {
+    let {callUUID} = data;
+    SDK.attend(name => {
+      console.log(name);
+    });
+  };
+
+  onEndCallAction = data => {
+    let {callUUID} = data;
+    console.log('UUID ', callUUID);
+    RNCallKeep.endCall(callUUID);
+    SDK.end(name => {
+      console.log(name);
+    });
+  };
 
   return (
     <View

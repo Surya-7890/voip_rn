@@ -1,22 +1,17 @@
 import {
-  Button,
   Text,
   View,
   TouchableNativeFeedback,
   TouchableHighlight,
   TouchableOpacity,
   Platform,
-  Image,
   NativeModules,
   TextInput,
   NativeEventEmitter,
-  PermissionsAndroid,
 } from 'react-native';
-import GoogleIcon from '../public/google_logo.png';
-import {useContext, useEffect, useRef, useState} from 'react';
+import {useContext, useEffect, useRef} from 'react';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {ApplicationContext} from '../App';
-import {requestNotifications} from 'react-native-permissions';
 import RNCallKeep from 'react-native-callkeep';
 
 let PlatformSpecificComponent =
@@ -34,7 +29,7 @@ export default function Login({setAuth}) {
   useEffect(() => {
     const eventEmitter = new NativeEventEmitter(NativeModules.SDK);
     let eventListener = eventEmitter.addListener('login', event => {
-      console.log(event.status); // "someValue"
+      console.log(event.status,"account "); // "someValue"
       if (event.status === 'Ok') {
         setAuth('auth');
       }
@@ -79,7 +74,7 @@ export default function Login({setAuth}) {
     SDK.login(
       username.current.value,
       password.current.value,
-      '172.17.14.126',
+      '192.168.177.227',
       name => {
         console.log(name);
       },

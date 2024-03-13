@@ -21,6 +21,7 @@ import com.facebook.react.modules.core.DeviceEventManagerModule
 
 
 
+
 class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext){
     override fun getName() = "SDK"
 
@@ -32,16 +33,6 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
     var RC=reactContext;
 
 
-    fun init() {
-        super.initialize()
-        val mainActivity = currentActivity as MainActivity?
-        core = mainActivity?.getCoreInstance()
-        core?.addListener(coreListener)
-        core?.isPushNotificationEnabled = true
-    }
-
-
-
     fun setCb(cb :Callback){
         this.callback=cb;
     }
@@ -49,7 +40,7 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
     val coreListener = object : CoreListenerStub() {
         override fun onAccountRegistrationStateChanged(core: Core, account: Account, state: RegistrationState, message: String) {
 
-            if (state == RegistrationState.Failed || state == RegistrationState.Ok) {                   
+            if (state == RegistrationState.Failed || state == RegistrationState.Ok) {                  
                 
                 val params = Arguments.createMap().apply {
                     putString("status", state.toString())
@@ -65,24 +56,32 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
             state: Call.State?,
             message: String
         ){
+            core?.setNativeRingingEnabled(false)                    
             when(state){
                 Call.State.IncomingReceived -> {
-                    // core.currentCall?.accept()
+                    // core.currentCall?.accept()  
+                    core?.stopRinging()                 
+                    
                     val params = Arguments.createMap().apply {
-                        putString("incoming", message.toString())
+                        putString("id", call.remoteAddress.getUsername())
                     }
-                    sendEvent(RC, "call", params)
+                    sendEvent(RC, "incoming", params)
                 }
-
                 Call.State.Connected -> {
 
-                    val params = Arguments.createMap().apply {
-                        putString("connect", call.remoteAddress.asStringUriOnly())
-                    }
-                    sendEvent(RC, "call", params)
+                    // val params = Arguments.createMap().apply {
+                    //     putString("connect", call.remoteAddress.asStringUriOnly())
+                    // }
+                    // sendEvent(RC, "call", params)
                 }
 
                 Call.State.Released -> {
+                    core?.stopRinging()
+                    val params = Arguments.createMap().apply {
+                        putString("reject", "rejected")
+                        putString("id", call.remoteAddress.getUsername())
+                    }
+                    sendEvent(RC, "call_status", params)
 
                 }
                 else ->{
@@ -134,6 +133,9 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
 
         try{
             isCallbackInvoked=false      
+            val mainActivity = currentActivity as MainActivity?
+            core = mainActivity?.getCoreInstance()
+            core?.setUserAgent("EC-Connect","1.0")
          
             
             setCb(cb)
@@ -166,6 +168,8 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
             } ?: run {
                 val mainActivity = currentActivity as MainActivity?
                 core = mainActivity?.getCoreInstance()
+                core?.setUserAgent("EC-Connect","1.0")
+                core?.activateAudioSession(true)
                 if (!isCallbackInvoked) callback.invoke("err")
                 isCallbackInvoked=true
             }            
@@ -173,12 +177,8 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
         }catch(e:Exception){
             if (!isCallbackInvoked) callback.invoke("err ${e.toString()}")
             isCallbackInvoked=true
-        }   
-        
+        }  
     }
-    
- 
-   
 
     @ReactMethod
     fun accountStatus(cb:Callback){
@@ -195,8 +195,18 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
         }?: run {
             val mainActivity = currentActivity as MainActivity?
             core = mainActivity?.getCoreInstance()            
-        }     
+        }   
+    }
 
+    @ReactMethod
+    fun attend(cb: Callback) {
+        core?.currentCall?.accept()
+        cb.invoke("success")
+    }
 
+    @ReactMethod
+    fun end(cb: Callback) {
+        core?.currentCall?.terminate()
+        cb.invoke("success")
     }
 }
