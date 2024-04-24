@@ -8,10 +8,17 @@ import BlockList from "../screens/porfile/BlockList";
 import DeleteAccount from "../screens/porfile/DeleteAccount";
 import Notification from "../screens/porfile/Notification";
 import Signout from "../screens/porfile/Signout";
+import { useEffect } from "react";
+import { useSIPClient } from "react-native-linphone-sdk"
 
 const HomeStack = createNativeStackNavigator();
 
 export default function HomePages() {
+
+  useEffect(() => {
+    
+  }, [])
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <HomeStack.Navigator initialRouteName="index" screenOptions={{

@@ -5,11 +5,13 @@ import { useEffect, useState } from "react";
 import HomePages from "./navigators/home";
 import Login from "./screens/Login";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { SipProvider } from "react-native-linphone-sdk";
 
 export default function App() {
   const [auth, setAuth] = useState(null);
 
   return (
+    <SipProvider>
     <NavigationContainer>
       {
         auth 
@@ -21,5 +23,6 @@ export default function App() {
         </SafeAreaView>
       }
     </NavigationContainer>
+    </SipProvider>
   )
 }
