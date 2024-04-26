@@ -29,9 +29,9 @@ export default function Login({setAuth}) {
   useEffect(() => {
     const eventEmitter = new NativeEventEmitter(NativeModules.SDK);
     let eventListener = eventEmitter.addListener('login', event => {
-      console.log(event.status,"account "); // "someValue"
+      console.log(event.account_details, 'account '); // "someValue"
       if (event.status === 'Ok') {
-        setAuth('auth');
+        // setAuth('auth');
       }
     });
 
@@ -67,7 +67,6 @@ export default function Login({setAuth}) {
     } catch (err) {
       console.error('initializeCallKeep error:', err.message);
     }
-    global.RNCallKeep = RNCallKeep;
   }
 
   const login = async () => {
@@ -79,6 +78,9 @@ export default function Login({setAuth}) {
         console.log(name);
       },
     );
+    SDK.accountStatus(name=>{
+      console.log(name)
+    })
   };
 
   return (

@@ -14,7 +14,6 @@ const {SDK} = NativeModules;
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {ApplicationContext} from '../App';
-
 import RNCallKeep from 'react-native-callkeep';
 
 let PlatformSpecificComponent =
@@ -23,6 +22,7 @@ let PlatformSpecificComponent =
     : Platform.OS === 'ios'
     ? TouchableHighlight
     : TouchableOpacity;
+
 let PlatformSpecificStyle =
   Platform.OS === 'android'
     ? {background: TouchableNativeFeedback.Ripple('gray', null, 30)}
@@ -37,7 +37,7 @@ export default function Home() {
     RNCallKeep.addEventListener('answerCall', this.onAnswerCallAction);
     RNCallKeep.addEventListener('endCall', this.onEndCallAction);
 
-    let eventListener = eventEmitter.addListener('incoming', event => {
+    let incomingcall = eventEmitter.addListener('incoming', event => {
       RNCallKeep.displayIncomingCall(
         '1234',
         event.id.toString(),
@@ -48,9 +48,9 @@ export default function Home() {
       console.log('incoming ', event.id);
     });
 
-    let eventListener2 = eventEmitter.addListener('call_status', event => {
+    let callStatus = eventEmitter.addListener('call_status', event => {
       if (event.reject === 'rejected') {
-        console.log('rejected', event.id);
+        console.log('account', event.account);
         RNCallKeep.endCall('1234');
       }
     });
@@ -58,8 +58,8 @@ export default function Home() {
 
     console.log('request');
     return () => {
-      eventListener.remove();
-      eventListener2.remove();
+      incomingcall.remove();
+      callStatus.remove();
     };
   }, []);
 

@@ -18,16 +18,13 @@ import com.facebook.react.bridge.Arguments
 import com.facebook.react.modules.core.DeviceEventManagerModule
 
 
-
-
-
-
 class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(reactContext){
     override fun getName() = "SDK"
 
     private var core: Core? = null
 
     private lateinit var callback: Callback
+
     var isCallbackInvoked = false
 
     var RC=reactContext;
@@ -40,10 +37,19 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
     val coreListener = object : CoreListenerStub() {
         override fun onAccountRegistrationStateChanged(core: Core, account: Account, state: RegistrationState, message: String) {
 
-            if (state == RegistrationState.Failed || state == RegistrationState.Ok) {                  
+            if (state == RegistrationState.Failed || state == RegistrationState.Ok) {   
+                
+                val account1 = core.getAccountList();
+
+                // val info =account1?.getContactAddress()
+
+                // val username = account1.username
+                // val domain = account1.domain
                 
                 val params = Arguments.createMap().apply {
                     putString("status", state.toString())
+                    putString("account_details","jk")
+
                 }
                 sendEvent(RC, "login", params)
             } 
@@ -141,10 +147,15 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
             setCb(cb)
             Log.i("[Assistant] [Generic Login] Registration state is")
 
+
             core?.let { safeCore ->   
+
                                 
                 val transportType = TransportType.Udp
                 val authInfo = Factory.instance().createAuthInfo(username, null, password, null, null, domain, null)
+
+               
+
                
                 val params = safeCore.createAccountParams()
                 val identity = Factory.instance().createAddress("sip:$username@$domain")
@@ -160,7 +171,8 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
                 val account = safeCore.createAccount(params)
                 safeCore.addAccount(account)
 
-                safeCore.defaultAccount = account
+                safeCore.setDefaultAccount(account)
+                // = account
                 safeCore.addListener(coreListener)                
                 safeCore.start()     
                
@@ -185,12 +197,17 @@ class SDK(reactContext: ReactApplicationContext) : ReactContextBaseJavaModule(re
         Log.i("[Assistant] [Generic Login] Registration state is")
         core?.let { safeCore ->
             if(safeCore.accountList.isEmpty()){
-                cb.invoke(false)
-                return 
+                val params = Arguments.createMap().apply {
+                    putString("account", "rejected")
+                }
+                sendEvent(RC, "login", params)
             }else{
-                cb.invoke(true)
-                return
+                val params = Arguments.createMap().apply {
+                    putString("account", safeCore.accountList.toString())
+                }
+                sendEvent(RC, "login", params)
             }
+            cb.invoke(true)
             
         }?: run {
             val mainActivity = currentActivity as MainActivity?
